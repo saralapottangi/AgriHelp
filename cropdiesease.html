@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriHelp - Crop Disease Tips</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 10px;
+    }
+    label, select {
+      font-size: 1.1em;
+      margin-top: 10px;
+      display: block;
+    }
+    #diseaseInfo {
+      margin-top: 15px;
+      border: 1px solid #ccc;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+    }
+    h3 {
+      margin-top: 0;
+      color: #2a7a2a;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌾 AgriHelp: Crop Disease Detection Tips</h1>
+
+  <label for="diseaseCrop">Select Crop for Disease Info:</label>
+  <select id="diseaseCrop" onchange="showDiseaseTips()">
+    <option value="">--Select Crop--</option>
+    <option value="Maize">Maize</option>
+    <option value="Paddy">Paddy</option>
+    <option value="Wheat">Wheat</option>
+  </select>
+
+  <div id="diseaseInfo">Please select a crop above to see disease tips.</div>
+
+  <script>
+    const cropDiseases = {
+      Maize: {
+        disease: "Leaf Blight",
+        symptoms: "Yellow to brown spots on leaves",
+        prevention: "Use resistant varieties and rotate crops",
+        treatment: "Apply appropriate fungicides",
+      },
+      Paddy: {
+        disease: "Blast Disease",
+        symptoms: "Diamond-shaped lesions on leaves",
+        prevention: "Use disease-free seeds and proper spacing",
+        treatment: "Spray fungicides during early infection",
+      },
+      Wheat: {
+        disease: "Rust",
+        symptoms: "Orange pustules on leaves",
+        prevention: "Plant resistant varieties",
+        treatment: "Use fungicides as recommended",
+      },
+    };
+
+    function showDiseaseTips() {
+      const crop = document.getElementById("diseaseCrop").value;
+      const infoDiv = document.getElementById("diseaseInfo");
+
+      if (!crop || !cropDiseases[crop]) {
+        infoDiv.innerHTML = "Please select a valid crop to see disease tips.";
+        return;
+      }
+
+      const { disease, symptoms, prevention, treatment } = cropDiseases[crop];
+
+      infoDiv.innerHTML = `
+        <h3>Disease: ${disease}</h3>
+        <p><strong>Symptoms:</strong> ${symptoms}</p>
+        <p><strong>Prevention:</strong> ${prevention}</p>
+        <p><strong>Treatment:</strong> ${treatment}</p>
+      `;
+    }
+  </script>
+</body>
+</html>

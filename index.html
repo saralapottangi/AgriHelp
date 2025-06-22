@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🌾 AgriHelp: Farmer Info Portal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 10px;
+
+      /* Background image setup */
+      background-image: url("sustainable-agriculture-t1tte6fs05hrpkyc.jpg");
+ /* example farmer photo from Unsplash */
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      position: relative;
+      color:blue(58, 203, 63); /* Make text white for better contrast */
+      text-shadow:cyan(0,0,0,0.7); /* subtle shadow for readability */
+    }
+    /* Dark overlay for readability */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color:beige(0, 0, 0, 0.4);
+      z-index: -1;
+    }
+
+    label, select, input, button {
+      font-size: 1em;
+      margin-top: 10px;
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: auto;
+      cursor: pointer;
+      margin-top: 15px;
+      background-color: #2a7a2a;
+      color: white;
+      border: none;
+    }
+    #diseaseInfo, #cropResult, #adviceResult, #weatherResult {
+      margin-top: 15px;
+      border: 1px solid #ccc;
+      padding: 15px;
+      background-color: rgba(255, 255, 255, 0.85);
+      border-radius: 5px;
+      max-width: 600px;
+      color: black; /* override text color to black inside these boxes */
+      text-shadow: none;
+    }
+    h1 {
+      color:chartreuse;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    ul#marketPrices {
+      list-style-type: none;
+      padding-left: 0;
+      max-width: 300px;
+      background-color: rgba(255,255,255,0.85);
+      border-radius: 5px;
+      padding: 10px;
+      color:crimson;
+      text-shadow: none;
+    }
+    ul#marketPrices li {
+      background: #e7f0e7;
+      margin-bottom: 6px;
+      padding: 8px;
+      border-radius: 4px;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌾 AgriHelp: Farmer Info Portal</h1>
+
+  <!-- Language Switch -->
+  <label for="lang">Choose Language:</label>
+  <select id="lang" onchange="switchLanguage()">
+    <option value="en">English</option>
+    <option value="hi">हिंदी</option>
+    <option value="te">తెలుగు</option>
+  </select>
+
+  <!-- Crop Suggestions -->
+  <label for="season">Select Season for Crop Suggestions:</label>
+  <select id="season" onchange="showSuggestions()">
+    <option value="">--Select Season--</option>
+    <option value="summer">Summer</option>
+    <option value="rainy">Rainy</option>
+    <option value="winter">Winter</option>
+  </select>
+  <div id="cropResult">Suggested Crops: </div>
+
+  <!-- Soil Advice -->
+  <label for="crop">Enter Crop for Soil Advice:</label>
+  <input type="text" id="crop" placeholder="e.g. Wheat" />
+  <label for="soil">Enter Soil Type:</label>
+  <input type="text" id="soil" placeholder="e.g. Sandy loam" />
+  <button onclick="getAdvice()">Get Soil Advice</button>
+  <div id="adviceResult"></div>
+
+  <!-- Weather Info -->
+  <label for="city">Enter City or Village for Weather Info:</label>
+  <input type="text" id="city" placeholder="e.g. Delhi or Small Village" />
+  <button onclick="getWeather()">Get Weather</button>
+  <div id="weatherResult"></div>
+
+  <!-- Crop Disease Detection -->
+  <label for="diseaseCrop">Select Crop for Disease Info:</label>
+  <select id="diseaseCrop" onchange="showDiseaseTips()">
+    <option value="">--Select Crop--</option>
+    <option value="Maize">Maize</option>
+    <option value="Paddy">Paddy</option>
+    <option value="Wheat">Wheat</option>
+  </select>
+  <div id="diseaseInfo">Please select a crop above to see disease tips.</div>
+
+  <!-- Market Prices -->
+  <h3>Current Market Prices</h3>
+  <ul id="marketPrices"></ul>
+
+  <script>
+    // Language switch function
+    function switchLanguage() {
+      const lang = document.getElementById("lang").value;
+      const h1 = document.querySelector("h1");
+      const seasonSelect = document.getElementById("season");
+      const cropResult = document.getElementById("cropResult");
+      const diseaseCrop = document.getElementById("diseaseCrop");
+
+      if (lang === "hi") {
+        h1.textContent = "🌾 एग्रीहेल्प: किसान सूचना पोर्टल";
+        seasonSelect.options[1].text = "गर्मी";
+        seasonSelect.options[2].text = "मानसून";
+        seasonSelect.options[3].text = "सर्दी";
+        cropResult.textContent = "सुझावित फसलें: ";
+        diseaseCrop.options[0].text = "--फसल चुनें--";
+        diseaseCrop.options[1].text = "मक्का";
+        diseaseCrop.options[2].text = "धान";
+        diseaseCrop.options[3].text = "गेहूं";
+      } else if (lang === "te") {
+        h1.textContent = "🌾 అగ్రిహెల్ప్: రైతు సమాచారం పోర్టల్";
+        seasonSelect.options[1].text = "గ్రీష్మం";
+        seasonSelect.options[2].text = "మాన్సూన్";
+        seasonSelect.options[3].text = "చలికి";
+        cropResult.textContent = "సిఫార్సు చేయబడిన పంటలు: ";
+        diseaseCrop.options[0].text = "--పంటను ఎంచుకోండి--";
+        diseaseCrop.options[1].text = "మక్కా";
+        diseaseCrop.options[2].text = "పొలుసు బియ్యం";
+        diseaseCrop.options[3].text = "గోధుమ";
+      } else {
+        h1.textContent = "🌾 AgriHelp: Farmer Info Portal";
+        seasonSelect.options[1].text = "Summer";
+        seasonSelect.options[2].text = "Rainy";
+        seasonSelect.options[3].text = "Winter";
+        cropResult.textContent = "Suggested Crops: ";
+        diseaseCrop.options[0].text = "--Select Crop--";
+        diseaseCrop.options[1].text = "Maize";
+        diseaseCrop.options[2].text = "Paddy";
+        diseaseCrop.options[3].text = "Wheat";
+      }
+    }
+
+    // Crop suggestions based on season
+    const suggestions = {
+      summer: {
+        en: "Maize, Millets, Cotton",
+        hi: "मक्का, बाजरा, कपास",
+        te: "మక్కా, మిల్లెట్లు, పత్తి"
+      },
+      rainy: {
+        en: "Paddy, Sugarcane, Soybean",
+        hi: "धान, गन्ना, सोयाबीन",
+        te: "పొలుసు బియ్యం, చెరకు, సోయాబీన్"
+      },
+      winter: {
+        en: "Wheat, Mustard, Barley",
+        hi: "गेहूं, सरसों, जौ",
+        te: "గోధుమ, ఆవాలు, జొన్న"
+      }
+    };
+
+    function showSuggestions() {
+      const season = document.getElementById("season").value;
+      const cropResult = document.getElementById("cropResult");
+      const lang = document.getElementById("lang").value;
+
+      if (!season) {
+        cropResult.textContent = lang === 'hi' ? "सुझावित फसलें: " : lang === 'te' ? "సిఫార్సు చేయబడిన పంటలు: " : "Suggested Crops: ";
+        return;
+      }
+      cropResult.textContent = (lang === 'hi' ? "सुझावित फसलें: " : lang === 'te' ? "సిఫార్సు చేయబడిన పంటలు: " : "Suggested Crops: ") + suggestions[season][lang];
+    }
+
+    // Soil advice
+    function getAdvice() {
+      const crop = document.getElementById("crop").value.trim();
+      const soil = document.getElementById("soil").value.trim();
+      const lang = document.getElementById("lang").value;
+      const adviceResult = document.getElementById("adviceResult");
+
+      if (!crop || !soil) {
+        adviceResult.textContent = lang === 'hi' ? "कृपया दोनों फसल और मिट्टी का प्रकार दर्ज करें।" : lang === 'te' ? "దయచేసి పంట మరియు మట్టి రకం రెండింటినీ నమోదు చేయండి." : "Please enter both crop and soil type.";
+        return;
+      }
+
+      const advice = lang === 'hi'
+        ? `फसल ${crop} के लिए, रेतीली दोमट मिट्टी सबसे अच्छी है। आपने ${soil} दर्ज किया है। उचित सिंचाई सुनिश्चित करें।`
+        : lang === 'te'
+        ? `${crop} పంటకు, ఇసుకల మట్టి ఉత్తమం. మీరు నమోదు చేసినది: ${soil}. సరైన నీటి పూతని ఖచ్చితంగా నిర్వహించండి.`
+        : `For crop ${crop}, sandy loam soil is best. You entered ${soil}. Ensure proper irrigation.`;
+
+      adviceResult.textContent = advice;
+    }
+
+    // Crop disease detection data
+    const cropDiseases = {
+      Maize: {
+        disease: {
+          en: "Leaf Blight",
+          hi: "पत्ती की बीमारी",
+          te: "ఇల్లు జ్వరము"
+        },
+        symptoms: {
+          en: "Yellow to brown spots on leaves",
+          hi: "पत्तियों पर पीले से भूरे धब्बे",
+          te: "ఇల్లు పేపర్లు పైన పసుపు నుండి గోధుమ చిట్లు"
+        },
+        prevention: {
+          en: "Use resistant varieties and rotate crops",
+          hi: "प्रतिरोधी किस्मों का उपयोग करें और फसलों को घुमाएं",
+          te: "ప్రతిఘటన గల వర్గాలు వాడండి మరియు పంటలను మార్చండి"
+        },
+        treatment: {
+          en: "Apply appropriate fungicides",
+          hi: "उपयुक्त कवकनाशी दवाएं लगाएं",
+          te: "తగిన ఫంగిసైడ్లను వర్తించండి"
+        }
+      },
+      Paddy: {
+        disease: {
+          en: "Blast Disease",
+          hi: "ब्लास्ट रोग",
+          te: "బ్లాస్ట్ వ్యాధి"
+        },
+        symptoms: {
+          en: "Diamond-shaped lesions on leaves",
+          hi: "पत्तियों पर हीरे के आकार के घाव",
+          te: "పంట పత్రాలలో వజ్రాకార గాయం"
+        },
+        prevention: {
+          en: "Use disease-free seeds and proper spacing",
+          hi: "रोग मुक्त बीज और उचित दूरी का उपयोग करें",
+          te: "వ్యాధి రహిత విత్తనాలు మరియు సరైన దూరం వాడండి"
+        },
+        treatment: {
+          en: "Spray fungicides during early infection",
+          hi: "प्रारंभिक संक्रमण के दौरान कवकनाशी दवाएं छिड़कें",
+          te: "ప్రారంభ సంక్రమణ సమయంలో ఫంగిసైడ్లను స్నానం చేయండి"
+        }
+      },
+      Wheat: {
+        disease: {
+          en: "Rust",
+          hi: "जंग",
+          te: "కుండుపువ్వు"
+        },
+        symptoms: {
+          en: "Orange pustules on leaves",
+          hi: "पत्तियों पर नारंगी फोड़े",
+          te: "పంట పత్రాలలో నారింజ రంగు ముడతలు"
+        },
+        prevention: {
+          en: "Plant resistant varieties",
+          hi: "प्रतिरोधी किस्में लगाएं",
+          te: "ప్రతిఘటన వర్గాలు వాడండి"
+        },
+        treatment: {
+          en: "Use fungicides and remove infected plants",
+          hi: "कवकनाशी दवाएं लगाएं और संक्रमित पौधों को हटाएं",
+          te: "ఫంగిసైడ్లను ఉపయోగించి సంక్రమిత మొక్కలను తీసివేయండి"
+        }
+      }
+    };
+
+    function showDiseaseTips() {
+      const crop = document.getElementById("diseaseCrop").value;
+      const lang = document.getElementById("lang").value;
+      const diseaseInfo = document.getElementById("diseaseInfo");
+
+      if (!crop) {
+        diseaseInfo.textContent = lang === 'hi' ? "कृपया ऊपर से फसल चुनें।" : lang === 'te' ? "దయచేసి పంటను ఎంచుకోండి." : "Please select a crop above.";
+        return;
+      }
+
+      const info = cropDiseases[crop];
+      diseaseInfo.innerHTML = `
+        <strong>${lang === 'hi' ? "रोग" : lang === 'te' ? "వ్యాధి" : "Disease"}:</strong> ${info.disease[lang]}<br/>
+        <strong>${lang === 'hi' ? "लक्षण" : lang === 'te' ? "లక్షణాలు" : "Symptoms"}:</strong> ${info.symptoms[lang]}<br/>
+        <strong>${lang === 'hi' ? "रोकथाम" : lang === 'te' ? "నివారణ" : "Prevention"}:</strong> ${info.prevention[lang]}<br/>
+        <strong>${lang === 'hi' ? "उपचार" : lang === 'te' ? "చికిత్స" : "Treatment"}:</strong> ${info.treatment[lang]}
+      `;
+    }
+
+    // Market Prices (dummy data)
+    const marketData = [
+      { crop: "Wheat", price: 2200 },
+      { crop: "Rice", price: 1800 },
+      { crop: "Maize", price: 1500 },
+      { crop: "Sugarcane", price: 3000 },
+    ];
+
+    function showMarketPrices() {
+      const list = document.getElementById("marketPrices");
+      list.innerHTML = "";
+      marketData.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.crop}: ₹${item.price} per quintal`;
+        list.appendChild(li);
+      });
+    }
+    showMarketPrices();
+
+    // Dummy Weather function
+    function getWeather() {
+      const city = document.getElementById("city").value.trim();
+      const lang = document.getElementById("lang").value;
+      const weatherResult = document.getElementById("weatherResult");
+
+      if (!city) {
+        weatherResult.textContent = lang === 'hi' ? "कृपया शहर या गाँव दर्ज करें।" : lang === 'te' ? "దయచేసి నగరం లేదా గ్రామం నమోదు చేయండి." : "Please enter a city or village.";
+        return;
+      }
+
+      // Dummy static data for demonstration
+      const weatherData = {
+        en: `Weather for ${city}: Sunny, 32°C`,
+        hi: `${city} के लिए मौसम: धूप, 32°C`,
+        te: `${city} వాతావరణం: సూర్య ప్రకాశం, 32°C`
+      };
+      weatherResult.textContent = weatherData[lang];
+    }
+  </script>
+</body>
+</html>
